@@ -1,55 +1,44 @@
-#include<GL/glut.h>
-#include<stdio.h>
-#include "Header.h"
-void display_p1(int x, int y)
+#include <iostream>
+#include <GL/glut.h>
+#include <time.h>
+using namespace std;
+int x1, x2, yc1, y2;
+int flag1 = 0;
+void draw_pixel(int x, int y)
 {
+	glColor3f(1, 0, 0);
 	glBegin(GL_POINTS);
 	glVertex2i(x, y);
 	glEnd();
-}
-int x1, y1, x2, y2;
+	glFlush();
 
+}
 void draw_line()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-
 	int dx, dy, i, e;
 	int incx, incy, inc1, inc2;
 	int x, y;
-
 	dx = x2 - x1;
-	dy = y2 - y1;
-
-	if (dx < 0)
-		dx = -dx;
-
-	if (dy < 0)
-		dy = -dy;
-
+	dy = y2 - yc1;
+	if (dx < 0)dx = -dx;
+	if (dy < 0)dy = -dy;
 	incx = 1;
-
 	if (x2 < x1)
 		incx = -1;
-
 	incy = 1;
-
-	if (y2 < y1)
+	if (y2 < yc1)
 		incy = -1;
-
 	x = x1;
-	y = y1;
-
+	y = yc1;
 	if (dx > dy)
 	{
-
-		display_p1(x, y);
-
+		draw_pixel(x, y);
 		e = 2 * dy - dx;
 		inc1 = 2 * (dy - dx);
 		inc2 = 2 * dy;
 		for (i = 0; i < dx; i++)
 		{
-			if (e >= 0)
+			if (e > 0)
 			{
 				y += incy;
 				e += inc1;
@@ -57,55 +46,94 @@ void draw_line()
 			else
 				e += inc2;
 			x += incx;
-
-			display_p1(x, y);
-
+			draw_pixel(x, y);
 		}
 	}
-
 	else
 	{
 
-		display_p1(x, y);
-		e = 2 * dy - dx;
-		inc1 = 2 * (dy - dx);
+		draw_pixel(x, y);
+		e = 2 * dx - dy;
+		inc1 = 2 * (dx - dy);
 		inc2 = 2 * dx;
 		for (i = 0; i < dy; i++)
 		{
-			if (e >= 0)
+			if (e > 0)
 			{
 				x += incx;
 				e += inc1;
+
 			}
 			else
+
 				e += inc2;
 			y += incy;
 
-			display_p1(x, y);
-
+			draw_pixel(x, y);
 		}
 	}
 	glFlush();
 }
-
-void minit()
+void myinit1()
 {
+	glClear(GL_COLOR_BUFFER_BIT);
 	glClearColor(1, 1, 1, 1);
-	glColor3f(1.0, 0.0, 0.0);
-	glPointSize(3.0);
-	gluOrtho2D(10, 500, 10, 500);
+	gluOrtho2D(-250, 250, -250, 250);
 }
-
-
-void p1_main(int argc, char *argv[])
+void MyMouse(int button, int state, int x, int y)
 {
-	scanf_s("%d%d%d%d", &x1, &y1, &x2, &y2);
-	glutInit(&argc, argv);
+	switch (button)
+	{
+	case GLUT_LEFT_BUTTON:
+		if (state == GLUT_DOWN)
+		{
+			if (flag1 == 0)
+			{
+				printf("Defining x1,y1");
+				x1 = x - 250;
+				yc1 = 250 - y;
+				flag1++;
+				cout << x1 << " " << yc1 << " \n";
+			}
+			else
+			{
+				printf("Defining x2,y2");
+				x2 = x - 250;
+				y2 = 250 - y;
+				flag1= 0;
+				cout << x2 << " " << y2 << " \n";
+				draw_line();
+
+			}
+
+		}
+		break;
+	}
+}
+void display()
+{}
+void p1_main(int ac, char** av)
+{
+	/*
+	//FOR KEYBOARD
+	cout << "X1\n";
+	cin >> x1;
+	cout << "Y1\n";
+	cin >> yc1;
+	cout << "X2\n";
+	cin >> x2;
+	cout << "Y2\n";
+	cin >> y2;
+	//END KEYBOARD
+	*/
+	glutInit(&ac, av);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-	glutInitWindowSize(300, 300);
-	glutInitWindowPosition(5, 5);
-	glutCreateWindow("CSE");
-	glutDisplayFunc(draw_line);
-	minit();
+	glutInitWindowSize(500, 500);
+	glutInitWindowPosition(100, 200);
+	glutCreateWindow("LINE");
+	myinit1();
+	glutMouseFunc(MyMouse); //INCLUDE TO USE MOUSE, REMOVE WHILE USING KEYBOARD
+//	draw_line(); //INCLUDE TO USE KEYBOARD, REMOVE WHILE USING MOUSE
+	glutDisplayFunc(display);
 	glutMainLoop();
 }
